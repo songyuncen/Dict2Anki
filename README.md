@@ -6,7 +6,7 @@
 **Dict2Anki** 是一款方便[有道词典](http://cidian.youdao.com/multi.html)、[欧陆词典](https://www.eudic.net/)用户同步生成单词本卡片至[Anki](https://apps.ankiweb.net/#download)的插件
 
 ### Change log
-* **sonyuncen's fork**: use Collins dictinary, change the note type.
+* **sonyuncen's fork**: use Collins dictionary, change the note type.
 * v6.0.0
     * 导入指定单词分组
     * 添加必应（bing）词典查询API
