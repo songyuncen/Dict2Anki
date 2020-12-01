@@ -27,6 +27,16 @@ class Parser:
         
         ec += ee
 
+        if 'collins' in self._result:
+            try:
+                collins = []
+                for i, d in enumerate(self._result['collins']['collins_entries'][0]['entries']['entry']):
+                    if 'tran' in d['tran_entry'][0]:
+                        collins.append(str(i) + '. ' + str(d['tran_entry'][0].get('tran')))
+            except KeyError:
+                collins = []
+            return collins
+
         try:
             web_trans = [w['value'] for w in self._result['web_trans']['web-translation'][0]['trans']][:3]
         except KeyError:
@@ -133,7 +143,7 @@ class API(AbstractQueryAPI):
     session.mount('http://', HTTPAdapter(max_retries=retries))
     session.mount('https://', HTTPAdapter(max_retries=retries))
     url = 'https://dict.youdao.com/jsonapi'
-    params = {"dicts": {"count": 99, "dicts": [["ec", "ee", "phrs", "pic_dict"], ["web_trans"], ["fanyi"], ["blng_sents_part"]]}}
+    params = {"dicts": {"count": 99, "dicts": [["ec", "ee", "phrs", "pic_dict", "collins"], ["web_trans"], ["fanyi"], ["blng_sents_part"]]}}
     parser = Parser
 
     @classmethod

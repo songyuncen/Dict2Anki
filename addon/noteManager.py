@@ -53,10 +53,8 @@ def getOrCreateModel(modelName):
 
     logger.info(f'创建新模版:{modelName}')
     newModel = mw.col.models.new(modelName)
-    mw.col.models.add(newModel)
     for field in MODEL_FIELDS:
         mw.col.models.addField(newModel, mw.col.models.newField(field))
-    mw.col.models.update(newModel)
     return newModel
 
 
@@ -67,54 +65,151 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
         return
     cardTemplate = mw.col.models.newTemplate(cardTemplateName)
     cardTemplate['qfmt'] = '''
-        <table>
-            <tr>
-                <td><h1 class="term">{{term}}</h1><br><div> 英 [{{BrEPhonetic}}] 美 [{{AmEPhonetic}}]</div></div></td>
-                <td><img {{image}} height="120px"></td>
-            </tr>
-        </table>
-        <hr>
-        释义：
-        <div>Tap to View</div>
-        <hr>
-        短语：
-        <table>{{phraseFront}}</table>
-        <hr>
-        例句：
-        <table>{{sentenceFront}}</table>
-        {{BrEPron}}
-        {{AmEPron}}
+<div class="bar head">牌组名称 : {{Deck}}
+</div>
+<div class="section">
+<div class="expression">{{term}}<span class="voice">{{AmEPron}}</span></div>
+<div class="phonetic">[{{BrEPhonetic}}]</div>
+</div>
     '''
     cardTemplate['afmt'] = '''
-        <table>
-            <tr>
-                <td><h1 class="term">{{term}}</h1><br><div> 英 [{{BrEPhonetic}}] 美 [{{AmEPhonetic}}]</div></div></td>
-                <td><img {{image}} height="120px"></td>
-            </tr>
-        </table>
-        <hr>
-        释义：
-        <div>{{definition}}</div>
-        <hr>
-        短语：
-        <table>{{phraseBack}}</table>
-        <hr>
-        例句：
-        <table>{{sentenceBack}}</table>
-    '''
+{{FrontSide}}
+
+<div class="bar head">释义 :
+</div>
+<div class="section">
+<div id="definition" class="items">{{definition}}</div>
+</div>
+<div class="bar head">例句 :
+</div>
+<div class="section">
+<div id="sentence" class="items">{{sentenceBack}}</div>
+</div>
+'''
     modelObject['css'] = '''
-        .card {
-            font-family: arial;
-            font-size: 20px;
-            text-align: left;
-            color: black;
-            background-color: white;
-        }
-        .term {
-            font-size : 35px;
-        }
+</style>
+<style>
+.card {
+ font-family: helvetica, arial, sans-serif;
+ font-size: 14px;
+ text-align: left;
+ color:#1d2129;
+ background-color:#e9ebee;
+}
+
+
+.bar{
+ border-radius: 3px;
+ border-bottom: 1px solid #29487d;
+ color: #fff;
+ padding: 5px;
+ text-decoration:none;
+ font-size: 12px;
+ color: #fff;
+ font-weight: bold;
+}
+
+.head{
+ padding-left:25px;
+ background: #365899 url(_clipboard.png) no-repeat
+}
+
+.foot{
+ padding-right:25px;
+ text-align:right;
+ background: #365899 url(_cloud.png) no-repeat right
+}
+
+.section {
+ border: 1px solid;
+ border-color: #e5e6e9 #dfe0e4 #d0d1d5;
+ border-radius: 3px;
+ background-color: #fff;
+ position: relative;
+ margin: 5px 0;
+}
+
+.expression{
+ font-size: 45px;
+ margin: 0 12px;
+ padding: 10px 0 8px 0;
+ border-bottom: 1px solid #e5e5e5;
+}
+
+.phonetic{
+ font-size:14px;
+ margin: 0 12px;
+ padding: 10px 0 8px 0;
+}
+
+.items{
+ border-top: 1px solid #e5e5e5;
+ font-size: 16px;
+ margin: 0 12px;
+ padding: 10px 0 8px 0;
+}
+
+#definition{
+ border-top: 0px;
+ line-height: 1.2em;
+}
+
+#sentence{
+ line-height: 1.2em;
+}
+
+#url a{
+text-decoration:none;
+font-size: 12px;
+color: #fff;
+font-weight: bold;
+}
+
+#definition a {
+ text-decoration: none;
+ padding: 1px 6px 2px 5px;
+ margin: 0 5px 0 0;
+ font-size: 12px;
+ color: white;
+ font-weight: normal;
+ border-radius: 4px
+}
+
+#definition a.pos_n {
+	background-color: #e3412f
+}
+
+#definition a.pos_v {
+	background-color: #539007
+}
+
+#definition a.pos_a {
+	background-color: #f8b002
+}
+
+#definition a.pos_r {
+	background-color: #684b9d
+}
+
+#sentence b{
+ font-weight:      normal;
+ border-radius:    3px;
+ color:            #fff;
+ background-color: #666;
+ padding-left:     3px;
+ padding-right:    3px;
+}
+
+.voice img{
+ margin-left:5px;
+ width: 24px;
+ height: 24px;
+}
+</style>
+<style>
     '''
     mw.col.models.addTemplate(modelObject, cardTemplate)
+    mw.col.models.add(modelObject)
 
 
 def addNoteToDeck(deckObject, modelObject, currentConfig: dict, oneQueryResult: dict):
@@ -130,14 +225,14 @@ def addNoteToDeck(deckObject, modelObject, currentConfig: dict, oneQueryResult: 
         if oneQueryResult.get(configName):
             # 短语例句
             if configName in ['sentence', 'phrase'] and currentConfig[configName]:
-                newNote[f'{configName}Front'] = '\n'.join([f'<tr><td>{e.strip()}</td></tr>' for e, _ in oneQueryResult[configName]])
-                newNote[f'{configName}Back'] = '\n'.join([f'<tr><td>{e.strip()}<br>{c.strip()}</td></tr>' for e, c in oneQueryResult[configName]])
+                newNote[f'{configName}Front'] = '<hr/>'.join([f'<tr><td>{e.strip()}</td></tr>' for e, _ in oneQueryResult[configName]])
+                newNote[f'{configName}Back'] = '<hr/>'.join([f'<tr><td>{e.strip()}<br>{c.strip()}</td></tr>' for e, c in oneQueryResult[configName]])
             # 图片
             elif configName == 'image':
                 newNote[configName] = f'src="{oneQueryResult[configName]}"'
             # 释义
             elif configName == 'definition' and currentConfig[configName]:
-                newNote[configName] = ' '.join(oneQueryResult[configName])
+                newNote[configName] = '<hr/>'.join(oneQueryResult[configName])
             # 发音
             elif configName in EXTRA_OPTION[:2]:
                 newNote[configName] = f"[sound:{configName}_{oneQueryResult['term']}.mp3]"
