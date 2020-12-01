@@ -69,7 +69,7 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
 </div>
 <div class="section">
 <div class="expression">{{term}}<span class="voice">{{AmEPron}}</span></div>
-<div class="phonetic">[{{BrEPhonetic}}]</div>
+<div class="phonetic">[{{AmEPhonetic}}]</div>
 </div>
     '''
     cardTemplate['afmt'] = '''
