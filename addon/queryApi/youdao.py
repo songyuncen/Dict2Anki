@@ -14,7 +14,7 @@ class Parser:
         self.term = term
 
     @property
-    def definition(self) -> list:
+    def sentence(self) -> list:
         try:
             ec = [d['tr'][0]['l']['i'][0] for d in self._result['ec']['word'][0]['trs']][:3]
         except KeyError:
@@ -26,22 +26,7 @@ class Parser:
             ee = []
         
         ec += ee
-
-        if 'collins' in self._result:
-            try:
-                collins = []
-                for i, d in enumerate(self._result['collins']['collins_entries'][0]['entries']['entry']):
-                    if 'tran' in d['tran_entry'][0]:
-                        collins.append(str(i) + '. ' + str(d['tran_entry'][0].get('tran')))
-            except KeyError:
-                collins = []
-            return collins
-
-        try:
-            web_trans = [w['value'] for w in self._result['web_trans']['web-translation'][0]['trans']][:3]
-        except KeyError:
-            web_trans = []
-        return ec if ec else web_trans
+        return ec
 
     @property
     def pronunciations(self) -> dict:
@@ -95,11 +80,36 @@ class Parser:
         return self.pronunciations['AmEUrl']
 
     @property
-    def sentence(self) -> list:
-        try:
-            return [(s['sentence'], s['sentence-translation'],) for s in self._result['blng_sents_part']['sentence-pair']]
-        except KeyError:
-            return []
+    def definition(self) -> list:
+        collins = []
+        if 'collins' in self._result:
+            try:
+                cnt = 1
+                for i, d in enumerate(self._result['collins']['collins_entries'][0]['entries']['entry']):
+                    item = ' '
+                    tran = ' '
+                    if 'pos_entry' in d['tran_entry'][0]:
+                        item += (str(d['tran_entry'][0]['pos_entry']['pos']) + " ")
+                    if 'tran' in d['tran_entry'][0]:
+                        tran = (str(d['tran_entry'][0].get('tran')) + '<br/>')
+                        item += tran
+                    if 'exam_sents' in d['tran_entry'][0]:
+                        item += '<ul>'
+                        if 'sent' in d['tran_entry'][0]['exam_sents']:
+                            for j, s in enumerate(d['tran_entry'][0]['exam_sents']['sent']):
+                                item += '<li>'
+                                if 'eng_sent' in s:
+                                    item += (str(s['eng_sent']) + '</br>')
+                                if 'chn_sent' in s:
+                                    item += str(s['chn_sent']) 
+                                item += '</li>'
+                        item += '</ul>'
+                    if tran != ' ':
+                        collins.append(str(cnt) + '. ' + item)
+                        cnt = cnt + 1
+            except KeyError:
+                collins = []
+        return collins
 
     @property
     def image(self)->str:

@@ -6,3 +6,4 @@ __pycache__
 *.log
 *.zip
 venv
+res.json

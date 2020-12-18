@@ -75,12 +75,12 @@ def getOrCreateModelCardTemplate(modelObject, cardTemplateName):
     cardTemplate['afmt'] = '''
 {{FrontSide}}
 
-<div class="bar head">释义 :
+<div class="bar head">柯林斯 :
 </div>
 <div class="section">
 <div id="definition" class="items">{{definition}}</div>
 </div>
-<div class="bar head">例句 :
+<div class="bar head">简明 :
 </div>
 <div class="section">
 <div id="sentence" class="items">{{sentenceBack}}</div>
@@ -224,9 +224,12 @@ def addNoteToDeck(deckObject, modelObject, currentConfig: dict, oneQueryResult: 
         logger.debug(f'字段:{configName}--结果:{oneQueryResult.get(configName)}')
         if oneQueryResult.get(configName):
             # 短语例句
-            if configName in ['sentence', 'phrase'] and currentConfig[configName]:
+            if configName in ['phrase'] and currentConfig[configName]:
                 newNote[f'{configName}Front'] = '<hr/>'.join([f'<tr><td>{e.strip()}</td></tr>' for e, _ in oneQueryResult[configName]])
                 newNote[f'{configName}Back'] = '<hr/>'.join([f'<tr><td>{e.strip()}<br>{c.strip()}</td></tr>' for e, c in oneQueryResult[configName]])
+            elif configName == 'sentence' and currentConfig[configName]:
+                newNote[f'{configName}Front'] = ''
+                newNote[f'{configName}Back'] = '<hr/>'.join(oneQueryResult[configName])
             # 图片
             elif configName == 'image':
                 newNote[configName] = f'src="{oneQueryResult[configName]}"'
