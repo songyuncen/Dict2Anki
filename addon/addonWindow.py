@@ -187,6 +187,7 @@ class Windows(QDialog, mainUI.Ui_Dialog):
 
     def checkUpdate(self):
         @pyqtSlot(str, str)
+        return
         def on_haveNewVersion(version, changeLog):
             if askUser(f'有新版本:{version}是否更新？\n\n{changeLog.strip()}'):
                 openLink(RELEASE_URL)
